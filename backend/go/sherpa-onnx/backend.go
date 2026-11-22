@@ -25,6 +25,7 @@ type SherpaBackend struct {
 	base.SingleThread
 	tts                uintptr
 	recognizer         uintptr
+	qwen3ASR           bool
 	onlineRecognizer   uintptr
 	vad                uintptr
 	vadSampleRate      int
@@ -1009,6 +1010,15 @@ func (s *SherpaBackend) loadASR(opts *pb.ModelOptions) error {
 	return fmt.Errorf("no recognizable ASR model found in %s", modelDir)
 }
 
+// Some Qwen3-ASR exports include the language tag in the first decode.
+func qwen3Transcript(text string) string {
+	prefix, transcript, ok := strings.Cut(text, "<asr_text>")
+	if ok && (prefix == "" || strings.HasPrefix(strings.ToLower(prefix), "language ")) {
+		return strings.TrimSpace(transcript)
+	}
+	return text
+}
+
 func (s *SherpaBackend) loadQwen3ASR(cfg uintptr, dir string) error {
 	frontend := filepath.Join(dir, "conv_frontend.onnx")
 	if !fileExists(frontend) || !fileExists(filepath.Join(dir, "tokenizer", "vocab.json")) || !fileExists(filepath.Join(dir, "tokenizer", "merges.txt")) {
@@ -1025,6 +1035,7 @@ func (s *SherpaBackend) loadQwen3ASR(cfg uintptr, dir string) error {
 		if s.recognizer == 0 {
 			return fmt.Errorf("failed to create sherpa-onnx Qwen3-ASR recognizer from %s", dir)
 		}
+		s.qwen3ASR = true
 		return nil
 	}
 	return fmt.Errorf("no matching Qwen3-ASR encoder and decoder pair in %s", dir)
@@ -1166,6 +1177,9 @@ func (s *SherpaBackend) AudioTranscription(_ context.Context, req *pb.Transcript
 	defer sherpaDestroyOfflineRecognizerResult(result)
 
 	text := strings.TrimSpace(goStringFromCPtr(shimOfflineResultText(result)))
+	if s.qwen3ASR {
+		text = qwen3Transcript(text)
+	}
 
 	return pb.TranscriptResult{
 		Segments: []*pb.TranscriptSegment{{Id: 0, Text: text}},

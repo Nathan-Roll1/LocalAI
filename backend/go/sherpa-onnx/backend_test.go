@@ -192,3 +192,16 @@ func TestQwen3ASRRecognizerSelection(t *testing.T) {
 		t.Fatal("incomplete Qwen3-ASR directory passed validation")
 	}
 }
+
+func TestQwen3Transcript(t *testing.T) {
+	for input, want := range map[string]string{
+		"language English<asr_text>Hello world.": "Hello world.",
+		"<asr_text> Hello!":                      "Hello!",
+		"He said <asr_text> twice.":              "He said <asr_text> twice.",
+		"I, I remember.":                         "I, I remember.",
+	} {
+		if got := qwen3Transcript(input); got != want {
+			t.Errorf("qwen3Transcript(%q) = %q, want %q", input, got, want)
+		}
+	}
+}
