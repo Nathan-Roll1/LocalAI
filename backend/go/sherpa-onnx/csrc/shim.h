@@ -80,6 +80,7 @@ void  sherpa_shim_offline_recog_config_set_paraformer_model(void *cfg, const cha
 void  sherpa_shim_offline_recog_config_set_sense_voice_model(void *cfg, const char *v);
 void  sherpa_shim_offline_recog_config_set_sense_voice_language(void *cfg, const char *v);
 void  sherpa_shim_offline_recog_config_set_sense_voice_use_itn(void *cfg, int32_t v);
+void  sherpa_shim_offline_recog_config_set_qwen3_asr(void *cfg, const char *frontend, const char *encoder, const char *decoder, const char *tokenizer);
 void  sherpa_shim_offline_recog_config_set_omnilingual_model(void *cfg, const char *v);
 void *sherpa_shim_create_offline_recognizer(void *cfg);
 

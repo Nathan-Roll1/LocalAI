@@ -32233,6 +32233,65 @@
     variants:
       - model: ced-small-f16
 - kind: model
+  id: oruk-fourier-2b
+  name: oruk-fourier-2b
+  version: 0.1.0
+  description: |
+    English speech recognition with Oruk's 2B model and the sherpa-onnx CPU backend. Commercial use, including API serving, requires separate permission from Oruk.
+  license: cc-by-nc-4.0
+  urls:
+    - https://huggingface.co/oruk/oruk-fourier-2b
+  tags:
+    - stt
+    - asr
+    - english
+    - cpu
+    - sherpa-onnx
+  channel: gallery
+  schemaVersion: 1
+  policy:
+    requireSignature: false
+  model:
+    url: github:mudler/LocalAI/gallery/sherpa-onnx-asr.yaml@master
+    files:
+      - filename: oruk-fourier-2b/conv_frontend.onnx
+        sha256: 19ddcb711237bba84f7aa385ce7c63320bcb736ce8888299064036d57a774bd9
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/conv_frontend.onnx
+      - filename: oruk-fourier-2b/decoder.int8.onnx
+        sha256: d252adc96e55aa858876896e20783a357fda4c38e216d5be1c7b42bf73c86e8b
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/decoder.int8.onnx
+      - filename: oruk-fourier-2b/decoder.int8.onnx.data
+        sha256: 4625b41d68653f974af294b6ef5539c36e32d0477d0a2262a9157e275a09433f
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/decoder.int8.onnx.data
+      - filename: oruk-fourier-2b/encoder.int8.onnx
+        sha256: 61255ca9e30a52c0d1da59ade9327792f08e32849cb1570da19be9ed6760cef9
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/encoder.int8.onnx
+      - filename: oruk-fourier-2b/encoder.int8.onnx.data
+        sha256: a11a260308504627190fbf662478eec9ff95cb36b3387f257892f6fb8886e8a1
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/encoder.int8.onnx.data
+      - filename: oruk-fourier-2b/tokenizer/config.json
+        sha256: 9306077f32e1989f6128d12a0e471a3bd612389dbd5bff81305b8f558fee9901
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/tokenizer/config.json
+      - filename: oruk-fourier-2b/tokenizer/merges.txt
+        sha256: 8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/tokenizer/merges.txt
+      - filename: oruk-fourier-2b/tokenizer/tokenizer.json
+        sha256: bd2a97b55c8f7f9c328c73ee9b9178771037e9f566dfca8e238a063d41cbac92
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/tokenizer/tokenizer.json
+      - filename: oruk-fourier-2b/tokenizer/tokenizer_config.json
+        sha256: e8f0641c46b7c259b8d4a34097471dab636bd5d5062f480ed7c97a3d3b3981ee
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/tokenizer/tokenizer_config.json
+      - filename: oruk-fourier-2b/tokenizer/vocab.json
+        sha256: 97dfe4fe392c23cda68fe01c60babe50a57c894fc0cf44d02c4048ad283499c3
+        uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/3fda023e157ce7986f137f76fcf326ed6e08fa73/onnx/sherpa-int8/tokenizer/vocab.json
+    overrides:
+      known_usecases:
+        - transcript
+      parameters:
+        model: oruk-fourier-2b/conv_frontend.onnx
+      options:
+        - subtype=qwen3_asr
+- kind: model
   id: omnilingual-0.3b-ctc-q8-sherpa
   name: omnilingual-0.3b-ctc-q8-sherpa
   version: 0.0.0-gallery.a53f2a3134aa

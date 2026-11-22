@@ -107,6 +107,7 @@ var (
 	shimOfflineRecogConfigSetSenseVoiceLanguage  func(uintptr, string)
 	shimOfflineRecogConfigSetSenseVoiceUseITN    func(uintptr, int32)
 	shimOfflineRecogConfigSetOmnilingualModel    func(uintptr, string)
+	shimOfflineRecogConfigSetQwen3ASR            func(uintptr, string, string, string, string)
 	shimCreateOfflineRecognizer                  func(uintptr) uintptr
 
 	// Online recognizer config
@@ -324,6 +325,7 @@ func loadSherpaLibsOnce() error {
 		{&shimOfflineRecogConfigSetSenseVoiceLanguage, "sherpa_shim_offline_recog_config_set_sense_voice_language"},
 		{&shimOfflineRecogConfigSetSenseVoiceUseITN, "sherpa_shim_offline_recog_config_set_sense_voice_use_itn"},
 		{&shimOfflineRecogConfigSetOmnilingualModel, "sherpa_shim_offline_recog_config_set_omnilingual_model"},
+		{&shimOfflineRecogConfigSetQwen3ASR, "sherpa_shim_offline_recog_config_set_qwen3_asr"},
 		{&shimCreateOfflineRecognizer, "sherpa_shim_create_offline_recognizer"},
 
 		{&shimOnlineRecogConfigNew, "sherpa_shim_online_recog_config_new"},
@@ -888,6 +890,7 @@ const (
 	familyParaformer  asrFamilyT = "paraformer"
 	familySensevoice  asrFamilyT = "sensevoice"
 	familyOmnilingual asrFamilyT = "omnilingual"
+	familyQwen3ASR    asrFamilyT = "qwen3_asr"
 	familyOnline      asrFamilyT = "online"
 )
 
@@ -899,6 +902,9 @@ const (
 func asrFamily(opts *pb.ModelOptions) asrFamilyT {
 	if v := findOptionValue(opts, optionSubtype, ""); v != "" {
 		return asrFamilyT(strings.ToLower(v))
+	}
+	if filepath.Base(opts.ModelFile) == "conv_frontend.onnx" {
+		return familyQwen3ASR
 	}
 	if enc, dec, join := findZipformerTriple(filepath.Dir(opts.ModelFile)); enc != "" && dec != "" && join != "" {
 		return familyOnline
@@ -986,6 +992,10 @@ func (s *SherpaBackend) loadASR(opts *pb.ModelOptions) error {
 	shimOfflineRecogConfigSetFeatFeatureDim(cfg, findOptionInt(opts, optionAsrFeatureDim, 80))
 	shimOfflineRecogConfigSetDecodingMethod(cfg, findOptionValue(opts, optionAsrDecodingMethod, "greedy_search"))
 
+	if asrFamily(opts) == familyQwen3ASR {
+		return s.loadQwen3ASR(cfg, modelDir)
+	}
+
 	// Detect model type from files in the model directory.
 	// Whisper models have separate encoder/decoder files (e.g. tiny.en-encoder.onnx).
 	encoderPath, decoderPath := findWhisperPair(modelDir)
@@ -997,6 +1007,27 @@ func (s *SherpaBackend) loadASR(opts *pb.ModelOptions) error {
 		return s.loadGenericASR(cfg, opts)
 	}
 	return fmt.Errorf("no recognizable ASR model found in %s", modelDir)
+}
+
+func (s *SherpaBackend) loadQwen3ASR(cfg uintptr, dir string) error {
+	frontend := filepath.Join(dir, "conv_frontend.onnx")
+	if !fileExists(frontend) || !fileExists(filepath.Join(dir, "tokenizer", "vocab.json")) || !fileExists(filepath.Join(dir, "tokenizer", "merges.txt")) {
+		return fmt.Errorf("Qwen3-ASR needs conv_frontend.onnx and a tokenizer directory with vocab.json and merges.txt in %s", dir)
+	}
+	for _, suffix := range []string{".int8.onnx", ".onnx"} {
+		encoder, decoder := filepath.Join(dir, "encoder"+suffix), filepath.Join(dir, "decoder"+suffix)
+		if !fileExists(encoder) || !fileExists(decoder) {
+			continue
+		}
+		shimOfflineRecogConfigSetFeatFeatureDim(cfg, 128)
+		shimOfflineRecogConfigSetQwen3ASR(cfg, frontend, encoder, decoder, filepath.Join(dir, "tokenizer"))
+		s.recognizer = shimCreateOfflineRecognizer(cfg)
+		if s.recognizer == 0 {
+			return fmt.Errorf("failed to create sherpa-onnx Qwen3-ASR recognizer from %s", dir)
+		}
+		return nil
+	}
+	return fmt.Errorf("no matching Qwen3-ASR encoder and decoder pair in %s", dir)
 }
 
 func (s *SherpaBackend) loadWhisperASR(cfg uintptr, opts *pb.ModelOptions, encoderPath, decoderPath string) error {

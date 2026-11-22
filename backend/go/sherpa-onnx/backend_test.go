@@ -182,3 +182,13 @@ var _ = Describe("Sherpa-ONNX", func() {
 		})
 	})
 })
+
+func TestQwen3ASRRecognizerSelection(t *testing.T) {
+	dir := t.TempDir()
+	if got := asrFamily(&pb.ModelOptions{ModelFile: filepath.Join(dir, "conv_frontend.onnx")}); got != familyQwen3ASR {
+		t.Fatalf("Qwen3-ASR frontend dispatched to %s", got)
+	}
+	if err := (&SherpaBackend{}).loadQwen3ASR(0, dir); err == nil {
+		t.Fatal("incomplete Qwen3-ASR directory passed validation")
+	}
+}

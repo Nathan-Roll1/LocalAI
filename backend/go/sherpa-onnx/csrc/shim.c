@@ -178,6 +178,10 @@ void sherpa_shim_offline_recog_config_free(void *h) {
     free((char *)c->model_config.sense_voice.model);
     free((char *)c->model_config.sense_voice.language);
     free((char *)c->model_config.omnilingual.model);
+    free((char *)c->model_config.qwen3_asr.conv_frontend);
+    free((char *)c->model_config.qwen3_asr.encoder);
+    free((char *)c->model_config.qwen3_asr.decoder);
+    free((char *)c->model_config.qwen3_asr.tokenizer);
     free((char *)c->decoding_method);
     free(c);
 }
@@ -229,6 +233,19 @@ void sherpa_shim_offline_recog_config_set_sense_voice_language(void *h, const ch
 }
 void sherpa_shim_offline_recog_config_set_sense_voice_use_itn(void *h, int32_t v) {
     ((SherpaOnnxOfflineRecognizerConfig *)h)->model_config.sense_voice.use_itn = v;
+}
+void sherpa_shim_offline_recog_config_set_qwen3_asr(void *h, const char *frontend,
+        const char *encoder, const char *decoder, const char *tokenizer) {
+    SherpaOnnxOfflineQwen3ASRModelConfig *q = &((SherpaOnnxOfflineRecognizerConfig *)h)->model_config.qwen3_asr;
+    shim_set_str(&q->conv_frontend, frontend);
+    shim_set_str(&q->encoder, encoder);
+    shim_set_str(&q->decoder, decoder);
+    shim_set_str(&q->tokenizer, tokenizer);
+    q->max_total_len = 512;
+    q->max_new_tokens = 128;
+    q->temperature = 1e-6f;
+    q->top_p = 0.8f;
+    q->seed = 42;
 }
 void sherpa_shim_offline_recog_config_set_omnilingual_model(void *h, const char *v) {
     shim_set_str(&((SherpaOnnxOfflineRecognizerConfig *)h)->model_config.omnilingual.model, v);
