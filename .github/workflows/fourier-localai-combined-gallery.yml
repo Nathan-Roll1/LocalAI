@@ -1,0 +1,36 @@
+name: Fourier combined LocalAI stock catalog
+on:
+  push:
+    branches: [qa/fourier-localai-combined-gallery-20261122]
+    paths: [.github/workflows/fourier-localai-combined-gallery.yml]
+permissions:
+  contents: read
+jobs:
+  stock-gallery-list:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: List both Fourier entries in one published gallery
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p model-list
+          curl -fsSL --retry 2 https://github.com/mudler/LocalAI/releases/download/v5.0.1/local-ai-v5.0.1-linux-amd64 -o local-ai
+          echo 'cd1e3eb72d9d0b63d5163804d507a5af0605a8d0518af24ea4eca8ae26866a5b  local-ai' | sha256sum -c
+          chmod +x local-ai
+          export LOCALAI_BACKEND_GALLERIES='[]' LOCALAI_MODELS_PATH="$PWD/model-list"
+          url='https://huggingface.co/oruk/oruk-fourier-2b/resolve/840860c03cf3735e900150da15691d2de1fdd642/examples/licensed-serving/localai-gallery.yaml'
+          export LOCALAI_GALLERIES="[{\"name\":\"oruk\",\"url\":\"$url\"}]"
+          ./local-ai run --address=127.0.0.1:8080 > localai.log 2>&1 & server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in $(seq 1 50); do curl -fs http://127.0.0.1:8080/v1/models >/dev/null && break; kill -0 "$server"; sleep 1; done
+          curl -fsS http://127.0.0.1:8080/models/available -o stock-list.json
+          jq -e 'sort_by(.name) | map({name, backend, gallery:.gallery.name, file_count:(.files|length), installed:(.installed // false)}) == [{"name":"oruk-fourier-2b","backend":"audio-cpp","gallery":"oruk","file_count":6,"installed":false},{"name":"oruk-fourier-2b-q8","backend":"llama-cpp","gallery":"oruk","file_count":2,"installed":false}]' stock-list.json
+          jq '[.[] | {name,backend,gallery:.gallery.name,downloads:(.files|length)}]' stock-list.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stock-localai-combined-catalog
+          path: |
+            stock-list.json
+            localai.log
