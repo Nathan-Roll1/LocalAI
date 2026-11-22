@@ -10,8 +10,8 @@ container=$(docker create "$image" /run.sh)
 docker export "$container" | tar -x -C engine
 docker rm "$container" >/dev/null
 engine=$(dirname "$(find "$PWD/engine" -name run.sh -print -quit)")
-test -f "$engine/model_specs/qwen3_asr.json"
-printf 'Stock Qwen3-ASR metadata %s\n' "$(sha256sum "$engine/model_specs/qwen3_asr.json")"
+test -x "$engine/grpc-server"
+sha256sum "$engine/grpc-server"
 curl -fsSL https://raw.githubusercontent.com/ggml-org/whisper.cpp/b0a11594aec50892a02cd8d129eee2dfe93a8bb8/samples/jfk.wav -o jfk.wav
 curl -fsSL https://raw.githubusercontent.com/docling-project/docling/0f3564c772e006c73417f61658a2d41c8352224d/tests/data/audio/sources/sample_10s.mp3 -o sample_10s.mp3
 (cd "$engine" && AUDIOCPP_DEFAULT_BACKEND=cpu ./run.sh --addr 127.0.0.1:50051) >backend.log 2>&1 & worker=$!
