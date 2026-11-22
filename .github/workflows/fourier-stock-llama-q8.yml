@@ -1,0 +1,28 @@
+name: Fourier Q8 speech recognition with stock LocalAI llama.cpp
+on:
+  push:
+    branches: [qa/fourier-stock-llama-q8]
+    paths: [fourier-llama-qa/**, .github/workflows/fourier-stock-llama-q8.yml]
+permissions:
+  contents: read
+jobs:
+  public-release-qa:
+    if: github.repository == 'Nathan-Roll1/LocalAI'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: fourier-llama-qa
+      - name: Install the released backend, install by gallery ID, transcribe two files
+        shell: bash
+        run: bash fourier-llama-qa/test.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: stock-llama-q8-diagnostics
+          retention-days: 1
+          path: |
+            ${{ runner.temp }}/llama-stock/result.json
+            ${{ runner.temp }}/llama-stock/localai.log
+            ${{ runner.temp }}/llama-stock/backend-install.log

@@ -1,0 +1,27 @@
+- name: oruk-fourier-2b-q8
+  url: https://raw.githubusercontent.com/mudler/LocalAI/dd5780aa904d132c784867d37fc713df8d984c8a/gallery/virtual.yaml
+  description: English speech recognition using Fourier's Q8 decoder and audio projector with LocalAI's llama.cpp backend. The model is licensed for noncommercial use.
+  urls:
+    - https://huggingface.co/oruk/oruk-fourier-2b
+  license: cc-by-nc-4.0
+  tags: [english, speech-recognition, gguf, llama-cpp]
+  files:
+    - filename: Qwen3-ASR-Oruk-Fourier-2B-Q8_0.gguf
+      sha256: 4a3a4761871be3a012c9473afc5ffa14ae301074e8c30cb244d7ccb51d122d89
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/d09bf574fa9e0150e27fa33c236e6deb1089f781/gguf/llama-cpp/Qwen3-ASR-Oruk-Fourier-2B-Q8_0.gguf
+    - filename: mmproj-Qwen3-ASR-Oruk-Fourier-2B-Q8_0.gguf
+      sha256: 9e0652ccf07db1eafa841cceb1b0903636c1f8e91aba4a8c92408871dec99156
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/d09bf574fa9e0150e27fa33c236e6deb1089f781/gguf/llama-cpp/mmproj-Qwen3-ASR-Oruk-Fourier-2B-Q8_0.gguf
+  overrides:
+    name: oruk-fourier-2b-q8
+    backend: llama-cpp
+    known_usecases: [transcript]
+    context_size: 4096
+    threads: 4
+    gpu_layers: 0
+    mmproj: mmproj-Qwen3-ASR-Oruk-Fourier-2B-Q8_0.gguf
+    parameters:
+      model: Qwen3-ASR-Oruk-Fourier-2B-Q8_0.gguf
+      temperature: 0
+    template:
+      use_tokenizer_template: true
