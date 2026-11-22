@@ -1,0 +1,25 @@
+name: Fourier stock LocalAI audio.cpp
+on:
+  push:
+    branches: [qa/fourier-stock-audio-cpp-20261122]
+    paths: [fourier-qa/**, .github/workflows/fourier-stock-audio-cpp.yml]
+permissions:
+  contents: read
+jobs:
+  cold-install-and-transcribe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: fourier-qa
+      - name: Stock LocalAI, CPU backend and named gallery
+        run: bash fourier-qa/test.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fourier-localai-stock-evidence
+          path: |
+            /tmp/fourier-stock/result.json
+            /tmp/fourier-stock/backend.log
+            /tmp/fourier-stock/localai.log

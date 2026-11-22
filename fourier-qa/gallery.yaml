@@ -1,0 +1,34 @@
+- name: oruk-fourier-2b
+  url: https://raw.githubusercontent.com/mudler/LocalAI/dd5780aa904d132c784867d37fc713df8d984c8a/gallery/virtual.yaml
+  description: English speech recognition using Fourier's original BF16 checkpoint and the audio-cpp backend. Local noncommercial use. Hosted or API serving requires separate permission from Oruk.
+  license: cc-by-nc-4.0
+  urls:
+    - https://huggingface.co/oruk/oruk-fourier-2b
+  tags: [speech-recognition, english, audio-cpp]
+  files:
+    - filename: Oruk-Fourier-2B/config.json
+      sha256: 5bc1d99c141fc866b61efca97dcbc6412a38db25ff0934c38bf7b46fa09485a2
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/8c2a8871f1304aa2f634da4fb95e24438c4945b9/config.json
+    - filename: Oruk-Fourier-2B/generation_config.json
+      sha256: c2952d2787ee983a289d8f921b0a67c4dfb4e75c4246479f5b1e0ff3be8af236
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/8c2a8871f1304aa2f634da4fb95e24438c4945b9/generation_config.json
+    - filename: Oruk-Fourier-2B/model.safetensors
+      sha256: e64765ffdd90c83704c0951e0d88b7f2ed84499af5c208f7ddf8d922cf08441c
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/8c2a8871f1304aa2f634da4fb95e24438c4945b9/model.safetensors
+    - filename: Oruk-Fourier-2B/processor_config.json
+      sha256: bc0b230081b44e629dd5b9045b78495615c1831b4b9f4cffe97bd37e82a6156a
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/8c2a8871f1304aa2f634da4fb95e24438c4945b9/processor_config.json
+    - filename: Oruk-Fourier-2B/tokenizer.json
+      sha256: bd2a97b55c8f7f9c328c73ee9b9178771037e9f566dfca8e238a063d41cbac92
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/8c2a8871f1304aa2f634da4fb95e24438c4945b9/tokenizer.json
+    - filename: Oruk-Fourier-2B/tokenizer_config.json
+      sha256: 940657ec4b19a2486cd8f95d2967a7a2acbeb6064663ece8ab3833ec455530b3
+      uri: https://huggingface.co/oruk/oruk-fourier-2b/resolve/8c2a8871f1304aa2f634da4fb95e24438c4945b9/tokenizer_config.json
+  overrides:
+    backend: audio-cpp
+    known_usecases: [transcript]
+    parameters:
+      model: Oruk-Fourier-2B
+    options:
+      - family:qwen3_asr
+      - task:asr
