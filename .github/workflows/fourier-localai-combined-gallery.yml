@@ -24,7 +24,9 @@ jobs:
           ./local-ai run --address=127.0.0.1:8080 > localai.log 2>&1 & server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
           for i in $(seq 1 50); do curl -fs http://127.0.0.1:8080/v1/models >/dev/null && break; kill -0 "$server"; sleep 1; done
-          curl -fsS http://127.0.0.1:8080/models/available -o stock-list.json
+          curl -fsS http://127.0.0.1:8080/models/available -o all-galleries.json
+          jq -e 'any(.[]; .gallery.name == "Official model library")' all-galleries.json
+          jq '[.[] | select(.gallery.name == "oruk")]' all-galleries.json > stock-list.json
           jq -e 'sort_by(.name) | map({name, backend, gallery:.gallery.name, file_count:(.files|length), installed:(.installed // false)}) == [{"name":"oruk-fourier-2b","backend":"audio-cpp","gallery":"oruk","file_count":6,"installed":false},{"name":"oruk-fourier-2b-q8","backend":"llama-cpp","gallery":"oruk","file_count":2,"installed":false}]' stock-list.json
           jq '[.[] | {name,backend,gallery:.gallery.name,downloads:(.files|length)}]' stock-list.json
       - uses: actions/upload-artifact@v4
